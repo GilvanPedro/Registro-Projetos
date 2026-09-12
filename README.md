@@ -1,116 +1,110 @@
-# Portfólio de Projetos — Backend Java + Frontend Next.js
+# Registro de Projetos
 
-Site blog/portfólio pra documentar projetos de Engenharia de Software.
-Duas aplicações separadas conversando via API REST: o Spring Boot cuida
-dos dados, o Next.js cuida da interface.
+Um blog/portfólio pra centralizar os projetos de Engenharia de Software num
+lugar só, em vez de espalhados em dez repositórios diferentes no GitHub. É
+um mini-CMS: você cadastra o projeto uma vez pelo painel admin, e ele já
+aparece na home com cards, ganha uma página própria com o conteúdo completo,
+e leva o visitante direto pro repositório ou pra documentação.
+
+Pensa assim: é o "Medium" da sua carreira de dev, só que rodando na sua
+própria máquina e sem ninguém mais postando nele.
 
 > Este projeto foi desenvolvido com o auxílio de inteligência artificial
 > (Claude, da Anthropic), que ajudou na arquitetura, no código inicial e
 > na documentação.
 
-## Arquitetura
+## Como as peças se encaixam
+
+Duas aplicações rodando lado a lado, cada uma com um trabalho bem definido:
 
 ```
 portfolio-projeto/
-  backend-api/      -> Spring Boot (Java 17+), Spring Data JPA, SQLite
-  frontend-web/      -> Next.js (App Router) + Tailwind CSS
+  backend-api/      → Spring Boot (Java 17+) — guarda os dados, não sabe nada de HTML
+  frontend-web/     → Next.js (App Router) + Tailwind — monta as páginas e fala com o backend
 ```
 
-- **Backend**: expõe o CRUD de projetos via API REST. Entidade `Project`
-  com `id`, `title`, `summary`, `fullContent` (HTML/Rich Text), `repoUrl`,
-  `docsUrl` e `createdAt`. Banco SQLite, criado sozinho na primeira execução.
-- **Frontend**: age como BFF. Renderiza a home e a página de artigo via
-  SSR consumindo a API Java, e tem uma área `/admin` (login simples)
-  pra gerenciar os projetos.
+O Java só existe pra persistir e servir dados via REST. O Next.js é quem
+busca esses dados no servidor (SSR) e devolve HTML pronto pro navegador —
+por isso ele funciona como um **BFF** (Backend-For-Frontend): a "cara" do
+site é toda dele, mas a fonte da verdade é o banco SQLite do lado do Java.
+
+Cada projeto cadastrado vira um registro com `title`, `summary` (resumo
+curto pros cards), `fullContent` (o artigo completo, em HTML — dá pra
+incluir blocos de código), `repoUrl` e `docsUrl`. O SQLite é criado sozinho
+na primeira vez que o backend sobe — zero configuração de banco.
+
+### O que existe hoje
+
+- **Home (`/`)** — lista todos os projetos em cards, renderizada via SSR.
+- **Página do projeto (`/projeto/[id]`)** — artigo completo, com botões pro
+  repositório e pra documentação no rodapé.
+- **Painel admin (`/admin`)** — atrás de login simples, criar/editar/apagar
+  projetos. Tudo que você cadastra aqui aparece na hora na home.
 
 ### Endpoints da API
 
 ```
-GET    /api/projects
-GET    /api/projects/{id}
-POST   /api/projects
-PUT    /api/projects/{id}
-DELETE /api/projects/{id}
+GET    /api/projects        lista tudo
+GET    /api/projects/{id}   um projeto específico
+POST   /api/projects        cria
+PUT    /api/projects/{id}   edita
+DELETE /api/projects/{id}   remove
 ```
 
-## Como rodar o projeto (Windows e Linux)
+## Rodando localmente
 
-O backend e o frontend rodam **ao mesmo tempo**, em dois terminais
-diferentes — se fechar um dos dois, o site para de funcionar.
+Precisa de **dois terminais abertos ao mesmo tempo** — se fechar um, a
+metade correspondente do site cai. Funciona igual em Windows e Linux, só
+muda o jeito de instalar as ferramentas.
 
-### 1. Extraia o projeto
-
-**Linux** — use o terminal, não o gerenciador de arquivos gráfico, pra
-garantir que o `.env.local.example` venha junto (ele começa com ponto e
-alguns programas gráficos pulam esse tipo de arquivo):
+### Ferramentas necessárias
 
 ```bash
-unzip portfolio-projeto.zip
-cd portfolio-projeto
-```
-
-**Windows** — extraia normalmente com o botão direito → "Extrair tudo",
-depois abra o PowerShell dentro da pasta extraída:
-
-```powershell
-cd portfolio-projeto
-```
-
-### 2. Confira as ferramentas necessárias
-
-Mesmo comando nos dois sistemas:
-
-```bash
-node -v      # precisa ser 20.9 ou mais novo
+node -v      # 20.9 ou mais novo
 java -version
 mvn -version
 ```
 
-Se faltar alguma:
+Faltando alguma:
 
-**Linux (Ubuntu/Debian/Pop!_OS):**
 ```bash
+# Linux (Ubuntu/Debian/Pop!_OS)
 sudo apt install -y openjdk-17-jdk maven
-```
 
-**Windows (PowerShell como administrador):**
-```powershell
+# Windows (PowerShell como administrador)
 winget install EclipseAdoptium.Temurin.17.JDK
 winget install Apache.Maven
 ```
 
-### 3. Configure o frontend
+### 1. Clone e entre na pasta do projeto
 
-**Linux:**
+```bash
+git clone https://github.com/GilvanPedro/Registro-Projetos.git
+cd Registro-Projetos/portfolio-projeto
+```
+
+### 2. Configure o frontend
+
 ```bash
 cd frontend-web
-cp .env.local.example .env.local
+cp .env.local.example .env.local      # Windows: Copy-Item .env.local.example .env.local
 npm install
 ```
 
-**Windows (PowerShell):**
-```powershell
-cd frontend-web
-Copy-Item .env.local.example .env.local
-npm install
-```
+Abra o `.env.local` e defina o usuário/senha do painel admin — vem com um
+valor padrão, mas troque antes de usar de verdade.
 
-### 4. Suba o backend Java
-
-Abra um **terminal novo** (deixe esse rodando o tempo todo). Mesmo comando
-nos dois sistemas:
+### 3. Suba o backend (terminal 1)
 
 ```bash
 cd backend-api
 mvn spring-boot:run
 ```
 
-Espere aparecer `Started PortfolioApiApplication` — isso confirma que a API
+Espera aparecer `Started PortfolioApiApplication` — é o sinal de que a API
 está de pé em `http://localhost:8080`.
 
-### 5. Suba o frontend Next.js
-
-Em **outro terminal** (o segundo, além do backend):
+### 4. Suba o frontend (terminal 2)
 
 ```bash
 cd frontend-web
@@ -119,41 +113,32 @@ npm run dev
 
 Quando aparecer `Ready`, o site está no ar em `http://localhost:3000`.
 
-### 6. Cadastre seu primeiro projeto
+### 5. Cadastre o primeiro projeto
 
-Abra o navegador em:
-
-```
-http://localhost:3000/admin/login
-```
-
-Entre com o usuário e senha que você colocou no `.env.local`. De lá dá pra
-criar, editar e apagar projetos — eles aparecem automaticamente na home.
-
-## Resumo rápido
+Acesse `http://localhost:3000/admin/login`, entre com as credenciais do
+`.env.local` e cadastre. Ele aparece na home assim que você salva.
 
 | Terminal | Pasta          | Comando               | Porta |
-|----------|----------------|------------------------|-------|
+|----------|----------------|-----------------------|-------|
 | 1        | `backend-api`  | `mvn spring-boot:run` | 8080  |
 | 2        | `frontend-web` | `npm run dev`         | 3000  |
 
-## Diferenças entre os sistemas
+## Stack
 
-- **Linux**: use `sudo apt install` pra instalar pacotes, terminal padrão
-  (bash/zsh).
-- **Windows**: use `winget install` (ou baixe os instaladores em
-  nodejs.org, adoptium.net e maven.apache.org), terminal PowerShell.
-- Os comandos de `cd`, `npm` e `mvn` funcionam igual nos dois — só o jeito
-  de instalar as ferramentas e copiar arquivos muda.
+| Camada    | Tecnologia                                              |
+|-----------|----------------------------------------------------------|
+| Backend   | Java 17+, Spring Boot 3.3, Spring Data JPA, SQLite       |
+| Frontend  | TypeScript, Next.js (App Router), Tailwind CSS, React 18 |
 
-## Notas
+## Pontos de atenção
 
-- O CORS já está liberado no backend para `http://localhost:3000`
-  (`application.properties`).
-- O login do `/admin` é propositalmente simples (usuário/senha via
-  `.env`), suficiente pra um projeto pessoal. Não use assim em produção
-  real — troque por hash de senha e uma tabela de usuários.
-- `dangerouslySetInnerHTML` na página do artigo confia no conteúdo salvo
-  no banco. Como só você alimenta o conteúdo pelo painel admin, tá seguro;
-  se um dia outras pessoas puderem postar, sanitize antes com algo como
-  `sanitize-html`.
+- O CORS já vem liberado no backend para `http://localhost:3000`
+  (`application.properties`) — se for expor em outro domínio, ajuste lá.
+- O login do `/admin` é propositalmente simples (usuário/senha via `.env`),
+  suficiente pra um projeto pessoal de uma pessoa só. Não use assim em
+  produção real — troque por hash de senha e uma tabela de usuários antes
+  de colocar no ar pra outras pessoas acessarem.
+- A página do artigo usa `dangerouslySetInnerHTML` pra renderizar o
+  `fullContent`. Como só você alimenta esse conteúdo pelo painel admin, tá
+  seguro. Se um dia mais gente puder postar, sanitize antes com algo como
+  `sanitize-html` — senão é a porta aberta pra um XSS.
