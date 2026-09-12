@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #0f0f14;
+  color: #f2f2f5;
+}
+
+/* Estilo para o HTML renderizado do fullContent (rich text) */
+.article-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.article-content p {
+  line-height: 1.75;
+  margin-bottom: 1rem;
+  color: #d1d1db;
+}
+
+.article-content img {
+  border-radius: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.article-content code {
+  background-color: #1e1e2a;
+  color: #7c5cff;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.35rem;
+  font-size: 0.9em;
+}
+
+.article-content pre code {
+  display: block;
+  padding: 1rem;
+  overflow-x: auto;
+  background-color: #14141c;
+  border: 1px solid #2a2a38;
+}

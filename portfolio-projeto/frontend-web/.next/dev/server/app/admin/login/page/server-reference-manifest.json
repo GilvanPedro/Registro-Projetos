@@ -1,0 +1,16 @@
+{
+  "node": {
+    "40cd3dd77c233040423024e97344fcee9ccab85a68": {
+      "workers": {
+        "app/admin/login/page": {
+          "moduleId": "[project]/frontend-web/.next-internal/server/app/admin/login/page/actions.js { ACTIONS_MODULE0 => \"[project]/frontend-web/app/admin/login/page.tsx [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "$$RSC_SERVER_ACTION_0",
+      "filename": "frontend-web/app/admin/login/page.tsx"
+    }
+  },
+  "edge": {}
+}
